@@ -1,0 +1,32 @@
+# Use Ubuntu as the base image
+FROM ubuntu:latest
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    libsqlite3-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone DuckDB repository
+RUN git clone --depth 1 https://github.com/duckdb/duckdb.git /opt/duckdb
+
+# Build DuckDB
+RUN mkdir /opt/duckdb/build && cd /opt/duckdb/build \
+    && cmake .. \
+    && make -j$(nproc) \
+    && make install
+
+# Set PATH environment variable
+ENV PATH="/opt/duckdb/build:${PATH}"
+
+# Set working directory
+WORKDIR /opt/duckdb
+
+# Expose any ports the app is expecting in the environment
+EXPOSE 5000
+
+# Set the default command to run when starting the container
+CMD ["duckdb"]

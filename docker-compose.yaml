@@ -1,0 +1,30 @@
+
+services:
+  etl:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: etl_script
+    command: tail -f /dev/null
+    restart: always
+    networks:
+      - networkName
+  
+  duckdb:
+    build:
+      context: .
+      dockerfile: Dockerfile.duckdb
+    ports:
+      - "5000:5000"
+  
+  sqlite:
+    image: alpine:latest  
+    volumes:
+      - ./databases:/databases      
+    command: ["tail", "-f", "/dev/null"]  
+    networks:
+      - networkName
+
+  networks:
+  backend_network:
+    driver: bridge
